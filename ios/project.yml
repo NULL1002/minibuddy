@@ -1,0 +1,59 @@
+# XcodeGen 工程描述 —— 在 macOS 上执行 `xcodegen generate` 生成 MiniBuddy.xcodeproj
+# 也可直接用仓库里的 GitHub Actions 云端编译，无需本地 Xcode。
+name: MiniBuddy
+
+options:
+  bundleIdPrefix: com.minibuddy
+  deploymentTarget:
+    iOS: "16.0"
+  xcodeVersion: "15.0"
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    TARGETED_DEVICE_FAMILY: "1,2"
+    ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    CODE_SIGN_STYLE: Automatic
+    CLANG_ENABLE_MODULES: YES
+
+targets:
+  MiniBuddy:
+    type: application
+    platform: iOS
+    sources:
+      - path: MiniBuddy
+        excludes:
+          - Info.plist
+    resources:
+      # 整个前端目录作为 folder reference 拷进 bundle，Swift 侧从 www/ 读取
+      - path: ../www
+        type: folder
+    info:
+      path: MiniBuddy/Info.plist
+      properties:
+        CFBundleDisplayName: 迷你搭子
+        CFBundleIdentifier: $(PRODUCT_BUNDLE_IDENTIFIER)
+        CFBundleExecutable: $(EXECUTABLE_NAME)
+        CFBundleName: $(PRODUCT_NAME)
+        CFBundlePackageType: APPL
+        CFBundleShortVersionString: "1.0"
+        CFBundleVersion: "1"
+        LSRequiresIPhoneOS: true
+        UILaunchScreen: {}
+        UIRequiredDeviceCapabilities: [arm64]
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        NSAppTransportSecurity:
+          NSAllowsArbitraryLoads: true
+        ITSAppUsesNonExemptEncryption: false
+        UIViewControllerBasedStatusBarAppearance: false
+        UIStatusBarStyle: UIStatusBarStyleLightContent
+    settings:
+      base:
+        # 自签前可改成自己喜欢的 id，但同一台设备上要避免和别的 App 重复
+        PRODUCT_BUNDLE_IDENTIFIER: com.minibuddy.app
+        INFOPLIST_FILE: MiniBuddy/Info.plist
+        MARKETING_VERSION: "1.0"
+        CURRENT_PROJECT_VERSION: "1"

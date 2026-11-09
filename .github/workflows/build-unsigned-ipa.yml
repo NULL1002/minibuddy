@@ -1,0 +1,60 @@
+# 在 GitHub 的 macOS runner 上编译出「未签名 ipa」，下载后用 Sideloadly / AltStore 自签安装。
+# 触发：push 到 main，或在 Actions 页面手动点 Run workflow。
+name: 生成未签名 iOS ipa
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 查看 Xcode
+        run: xcodebuild -version
+
+      - name: 安装 XcodeGen
+        run: brew install xcodegen
+
+      - name: 生成 Xcode 工程
+        working-directory: ios
+        run: xcodegen generate
+
+      - name: 编译（不签名）
+        working-directory: ios
+        run: |
+          set -euo pipefail
+          xcodebuild \
+            -project MiniBuddy.xcodeproj \
+            -scheme MiniBuddy \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            PROVISIONING_PROFILE_SPECIFIER="" \
+            clean build
+
+      - name: 打包成 ipa
+        run: |
+          set -euo pipefail
+          APP="ios/build/Build/Products/Release-iphoneos/MiniBuddy.app"
+          test -d "$APP" || { echo "找不到 MiniBuddy.app，编译可能失败"; exit 1; }
+          rm -rf Payload MiniBuddy-unsigned.ipa
+          mkdir Payload
+          cp -R "$APP" Payload/
+          zip -qry MiniBuddy-unsigned.ipa Payload
+          unzip -l MiniBuddy-unsigned.ipa | head -20
+
+      - name: 上传产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: MiniBuddy-unsigned-ipa
+          path: MiniBuddy-unsigned.ipa
+          if-no-files-found: error
