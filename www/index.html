@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>迷你搭子 · MiniBuddy</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="迷你搭子">
+<meta name="theme-color" content="#0b1020">
+<meta name="color-scheme" content="dark">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div id="app">
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">✦</span>
+      <div class="brand-text">
+        <h1 id="pageTitle">对话</h1>
+        <p id="pageSub">迷你搭子 · MiniBuddy</p>
+      </div>
+    </div>
+    <button class="icon-btn" id="btnMore" aria-label="更多">···</button>
+  </header>
+
+  <main id="main">
+
+    <!-- 对话 -->
+    <section class="page" id="page-chat">
+      <div class="chat-scroll" id="chatScroll"></div>
+      <div class="composer-wrap">
+        <div class="quick" id="quickRow">
+          <button class="chip" data-q="帮我想三条本周工作计划">周计划</button>
+          <button class="chip" data-q="记一下：周五前提交报销单">记一下</button>
+          <button class="chip" data-q="加个待办：整理会议纪要">加待办</button>
+          <button class="chip" data-q="你能干啥">能干啥</button>
+        </div>
+        <div class="composer">
+          <textarea id="input" rows="1" placeholder="说点什么，或让我帮你记一笔…"></textarea>
+          <button id="btnSend" class="send" aria-label="发送">↑</button>
+        </div>
+        <p class="composer-tip" id="composerTip"></p>
+      </div>
+    </section>
+
+    <!-- 待办 -->
+    <section class="page" id="page-todos" hidden>
+      <div class="section-head">
+        <div class="add-row">
+          <input id="todoInput" type="text" placeholder="添加一项待办…" autocomplete="off">
+          <button class="primary-btn" id="btnAddTodo">添加</button>
+        </div>
+        <div class="filters" id="todoFilters">
+          <button data-f="all" class="on">全部</button>
+          <button data-f="open">未完成</button>
+          <button data-f="done">已完成</button>
+        </div>
+      </div>
+      <div class="scroll-area">
+        <div class="card-list" id="todoList"></div>
+        <p class="empty" id="todoEmpty" hidden>还没有待办，上面加一条试试 </p>
+      </div>
+    </section>
+
+    <!-- 备忘 -->
+    <section class="page" id="page-notes" hidden>
+      <div class="section-head">
+        <div class="add-row">
+          <input id="noteInput" type="text" placeholder="记一笔…" autocomplete="off">
+          <button class="primary-btn" id="btnAddNote">记下</button>
+        </div>
+        <input id="noteSearch" class="search" type="search" placeholder="搜索备忘" autocomplete="off">
+      </div>
+      <div class="scroll-area">
+        <div class="card-list" id="noteList"></div>
+        <p class="empty" id="noteEmpty" hidden>还没有备忘 </p>
+      </div>
+    </section>
+
+    <!-- 设置 -->
+    <section class="page" id="page-settings" hidden>
+      <div class="scroll-area">
+        <div class="form-card">
+          <h3>模型接口</h3>
+          <label>Base URL<input id="cfgBase" type="url" spellcheck="false" placeholder="https://api.deepseek.com"></label>
+          <label>API Key
+            <span class="with-btn">
+              <input id="cfgKey" type="password" spellcheck="false" placeholder="sk-…" autocomplete="off">
+              <button id="btnEye" class="mini-btn" type="button">显示</button>
+            </span>
+          </label>
+          <label>模型名<input id="cfgModel" type="text" spellcheck="false" placeholder="deepseek-chat"></label>
+          <label>系统提示词<textarea id="cfgSystem" rows="3" spellcheck="false"></textarea></label>
+          <label class="switch-row"><span>流式输出（打字机效果）</span><input id="cfgStream" type="checkbox"></label>
+          <p class="hint">留空 API Key 即可使用离线演示模式。iPhone 原生壳内走 Swift 网络桥，不受浏览器跨域限制；网页版若直连被 CORS 拦截，把 Base URL 换成自己的代理地址即可。</p>
+        </div>
+
+        <div class="form-card">
+          <h3>数据</h3>
+          <div class="btn-row">
+            <button class="ghost-btn" id="btnExport">导出</button>
+            <button class="ghost-btn" id="btnImport">导入</button>
+            <button class="ghost-btn danger" id="btnClearAll">清空全部</button>
+          </div>
+          <p class="hint">所有数据只存在本机（localStorage / App 沙盒），不会上传到任何服务器。</p>
+        </div>
+
+        <div class="form-card">
+          <h3>安装到 iPhone 主屏幕</h3>
+          <p class="hint" id="installHint">在 Safari 打开本页 → 点底部「分享」 → 选「添加到主屏幕」，即可全屏运行，像原生 App 一样有独立图标。若你是用下面的 Xcode 工程编译的原生壳，这一段可忽略。</p>
+        </div>
+
+        <div class="about">
+          <span class="logo small">✦</span>
+          <p><strong>迷你搭子 MiniBuddy</strong><br>v1.0 · 一套前端，同时用于 PWA 与 iOS 原生壳</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="tabbar" id="tabbar">
+    <button class="tab on" data-tab="chat">
+      <svg viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.5 9 9 0 0 1-4-.9L3 21l1.9-5.5a9 9 0 0 1-.9-4A8.4 8.4 0 0 1 12.5 3 8.4 8.4 0 0 1 21 11.5z"/></svg>
+      <span>对话</span>
+    </button>
+    <button class="tab" data-tab="todos">
+      <svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/></svg>
+      <span>待办</span>
+    </button>
+    <button class="tab" data-tab="notes">
+      <svg viewBox="0 0 24 24"><path d="M5 3h14v18l-3-2-4 2-4-2-3 2V3zM9 8h6M9 12h6"/></svg>
+      <span>备忘</span>
+    </button>
+    <button class="tab" data-tab="settings">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21H10v-.1a1.7 1.7 0 0 0-1-1.5 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3V10h.1a1.7 1.7 0 0 0 1.5-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3A1.7 1.7 0 0 0 10 3.1V3h4v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.5 1H21v4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+      <span>设置</span>
+    </button>
+  </nav>
+</div>
+
+<div class="modal" id="modal">
+  <div class="modal-card">
+    <h3 id="modalTitle"></h3>
+    <div id="modalBody"></div>
+    <div class="modal-actions">
+      <button id="modalCancel" class="ghost-btn">取消</button>
+      <button id="modalOk" class="primary-btn">好</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
