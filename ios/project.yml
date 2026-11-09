@@ -24,10 +24,21 @@ targets:
       - path: MiniBuddy
         excludes:
           - Info.plist
-    resources:
-      # 整个前端目录作为 folder reference 拷进 bundle，Swift 侧从 www/ 读取
-      - path: ../www
-        type: folder
+    # www/ 用构建脚本显式拷进 bundle。
+    # 注：folder reference（type: folder）对工程目录外的 ../www 在 XcodeGen 里不可靠，
+    # 实测编译出的 .app 里没有 www 目录，会导致 WKWebView 白屏，故改为 Run Script。
+    postBuildScripts:
+      - name: 拷贝 www 前端资源
+        script: |
+          set -e
+          SRC="${SRCROOT}/../www"
+          DST="${BUILT_PRODUCTS_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/www"
+          rm -rf "${DST}"
+          mkdir -p "${DST}"
+          cp -R "${SRC}/." "${DST}/"
+          echo "前端资源已拷贝: ${DST}"
+        basedOnDependencyAnalysis: false
+        showEnvVars: false
     info:
       path: MiniBuddy/Info.plist
       properties:
